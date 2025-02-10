@@ -1,10 +1,18 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { message } from 'antd';
 
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface PrivateRouteProps {
+  children: React.ReactNode;
+}
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
+  const { t } = useTranslation();
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
   if (!isLoggedIn) {
-    // 未登录时重定向到登录页
+    message.error(t('error.403'));
     return <Navigate to="/login" replace />;
   }
 

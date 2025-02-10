@@ -1,33 +1,56 @@
-import React from 'react';
-import { Layout, Menu, Dropdown, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Menu, Dropdown, Space, message, Button, theme } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  UserOutlined,
   DashboardOutlined,
   SettingOutlined,
-  BarChartOutlined,
+  UserOutlined,
   LogoutOutlined,
+  BarChartOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
+import LanguageSwitch from '../components/LanguageSwitch';
+import Logo from '../components/Logo';
 
 const { Header, Sider, Content } = Layout;
 
 const MainLayout: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const { token } = theme.useToken();
 
-  // 退出登录处理
+  // 监听窗口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 初始化
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
-    message.success('退出登录成功');
+    message.success(t('logout.success'));
     navigate('/login');
   };
 
-  // 用户菜单项
+  // 用户下拉菜单项
   const userMenuItems = [
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: '个人设置',
+      label: t('menu.profile'),
       onClick: () => navigate('/profile'),
     },
     {
@@ -36,68 +59,133 @@ const MainLayout: React.FC = () => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: t('logout.button'),
       onClick: handleLogout,
     },
   ];
 
-  // 侧边栏菜单项
   const menuItems = [
-    {
-      key: 'dashboard',
+    { 
+      key: 'dashboard', 
       icon: <DashboardOutlined />,
-      label: '仪表盘',
+      label: t('menu.dashboard') 
     },
-    {
-      key: 'users',
+    { 
+      key: 'user', 
       icon: <UserOutlined />,
-      label: '用户管理',
+      label: t('menu.user') 
     },
-    {
-      key: 'reports',
+    { 
+      key: 'reports', 
       icon: <BarChartOutlined />,
-      label: '数据报表',
+      label: t('menu.reports') 
     },
-    {
-      key: 'settings',
+    { 
+      key: 'settings', 
       icon: <SettingOutlined />,
-      label: '设置',
-    },
+      label: t('menu.settings') 
+    }
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(`/${key}`);
+    if (isMobile) {
+      setCollapsed(true);
+    }
   };
 
   const selectedKey = location.pathname.split('/')[1] || 'dashboard';
 
   return (
-    <Layout className="site-layout">
-      <Sider width={200} className="site-sider" theme="light">
-        <div className="logo">React Admin</div>
+    <Layout style={{ minHeight: '100vh', background: token.colorBgContainer }}>
+      <Sider 
+        width={220} 
+        theme="light"
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
+        trigger={null}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          borderRight: `1px solid ${token.colorBorderSecondary}`,
+          background: token.colorBgContainer,
+          zIndex: 1001,
+        }}
+      >
+        <Logo collapsed={collapsed} />
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
-          style={{ height: 'calc(100% - 64px)' }}
           items={menuItems}
           onClick={handleMenuClick}
+          style={{ 
+            border: 'none',
+            padding: '8px',
+          }}
         />
       </Sider>
-      <Layout>
-        <Header className="site-header">
-          <div className="header-content">
-            <div style={{ flex: 1, color: 'rgba(0, 0, 0, 0.85)', fontSize: '16px' }}>
-              {menuItems.find(item => item.key === selectedKey)?.label || ''}
-            </div>
+      <Layout style={{ 
+        marginLeft: collapsed ? (isMobile ? 0 : 80) : 220, 
+        transition: 'all 0.2s',
+        background: token.colorBgLayout,
+      }}>
+        <Header style={{ 
+          padding: '0 24px', 
+          background: token.colorBgContainer,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          left: collapsed ? (isMobile ? 0 : 80) : 220,
+          height: 64,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          transition: 'all 0.2s',
+          zIndex: 1000,
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        }}>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 48,
+              height: 48,
+              marginLeft: -12,
+            }}
+          />
+          <Space size={16}>
+            <LanguageSwitch />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <div className="user-menu">
+              <Space style={{ cursor: 'pointer' }}>
                 <UserOutlined />
-                <span style={{ marginLeft: 8 }}>管理员</span>
-              </div>
+                <span style={{ 
+                  display: isMobile ? 'none' : 'inline',
+                  color: token.colorTextSecondary,
+                }}>
+                  Admin
+                </span>
+              </Space>
             </Dropdown>
-          </div>
+          </Space>
         </Header>
-        <Content className="site-content">
+        <Content style={{ 
+          margin: '88px 24px 24px',
+          minHeight: 280,
+          borderRadius: token.borderRadiusLG,
+          background: token.colorBgContainer,
+          padding: 24,
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        }}>
           <Outlet />
         </Content>
       </Layout>

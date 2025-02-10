@@ -1,0 +1,53 @@
+.site-layout {
+  min-height: 100vh;
+}
+
+.logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.site-sider {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.site-header {
+  padding: 0 24px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.site-content {
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  min-height: 280px;
+}
+
+.ant-layout-sider {
+  transition: all 0.2s !important;
+}
+
+.ant-layout-sider-collapsed {
+  overflow: initial !important;
+}
+
+.ant-menu {
+  transition: all 0.2s !important;
+}
+
+.ant-layout-header {
+  transition: padding 0.2s !important;
+}
+
+@media screen and (max-width: 768px) {
+  .ant-layout-content {
+    margin: 16px 8px !important;
+    padding: 16px !important;
+  }
+} 

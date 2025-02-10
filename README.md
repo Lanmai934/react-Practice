@@ -1,22 +1,22 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这个模板提供了一个最小化的设置，用于在 Vite 中运行 React，包含了热模块替换（HMR）功能和一些 ESLint 规则。
 
-Currently, two official plugins are available:
+目前有两个官方插件可用：
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) 使用 [Babel](https://babeljs.io/) 实现快速刷新
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) 使用 [SWC](https://swc.rs/) 实现快速刷新
 
-## Expanding the ESLint configuration
+## 扩展 ESLint 配置
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+如果您正在开发生产环境的应用，我们建议更新配置以启用类型感知的 lint 规则：
 
-- Configure the top-level `parserOptions` property like this:
+- 像这样配置顶层的 `parserOptions` 属性：
 
 ```js
 export default tseslint.config({
   languageOptions: {
-    // other options...
+    // 其他选项...
     parserOptions: {
       project: ['./tsconfig.node.json', './tsconfig.app.json'],
       tsconfigRootDir: import.meta.dirname,
@@ -25,24 +25,24 @@ export default tseslint.config({
 })
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- 将 `tseslint.configs.recommended` 替换为 `tseslint.configs.recommendedTypeChecked` 或 `tseslint.configs.strictTypeChecked`
+- 可选择添加 `...tseslint.configs.stylisticTypeChecked`
+- 安装 [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) 并更新配置：
 
 ```js
 // eslint.config.js
 import react from 'eslint-plugin-react'
 
 export default tseslint.config({
-  // Set the react version
+  // 设置 react 版本
   settings: { react: { version: '18.3' } },
   plugins: {
-    // Add the react plugin
+    // 添加 react 插件
     react,
   },
   rules: {
-    // other rules...
-    // Enable its recommended rules
+    // 其他规则...
+    // 启用推荐的规则
     ...react.configs.recommended.rules,
     ...react.configs['jsx-runtime'].rules,
   },

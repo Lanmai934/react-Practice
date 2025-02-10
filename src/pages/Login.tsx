@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, message, Tabs, QRCode, Spin } from 'antd';
 import { UserOutlined, LockOutlined, WechatOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitch from '../components/LanguageSwitch';
 
 const { TabPane } = Tabs;
 
@@ -19,17 +21,16 @@ const Login: React.FC = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [qrCodeStatus, setQrCodeStatus] = useState<QRCodeStatus>(QRCodeStatus.NEW);
   const [activeKey, setActiveKey] = useState('account');
+  const { t } = useTranslation();
 
   // 生成二维码
   const generateQRCode = async () => {
     try {
-      // 这里应该调用后端接口获取二维码信息
-      // 示例：
       const fakeQrCode = `https://example.com/login?code=${Date.now()}`;
       setQrCodeUrl(fakeQrCode);
       setQrCodeStatus(QRCodeStatus.NEW);
     } catch (error) {
-      message.error('获取二维码失败，请重试');
+      message.error(t('login.qrcode.error'));
     }
   };
 
@@ -76,10 +77,10 @@ const Login: React.FC = () => {
     try {
       if (values.username === 'admin' && values.password === 'admin') {
         localStorage.setItem('isLoggedIn', 'true');
-        message.success('登录成功');
+        message.success(t('login.success'));
         navigate('/dashboard');
       } else {
-        message.error('用户名或密码错误');
+        message.error(t('login.error'));
       }
     } finally {
       setLoading(false);
@@ -95,15 +96,17 @@ const Login: React.FC = () => {
         statusContent = (
           <div className="qrcode-mask">
             <WechatOutlined style={{ fontSize: 32, color: '#52c41a' }} />
-            <p>已扫描，请在手机上确认</p>
+            <p>{t('login.qrcode.scanned')}</p>
           </div>
         );
         break;
       case QRCodeStatus.EXPIRED:
         statusContent = (
           <div className="qrcode-mask">
-            <p>二维码已过期</p>
-            <Button type="link" onClick={generateQRCode}>点击刷新</Button>
+            <p>{t('login.qrcode.expired')}</p>
+            <Button type="link" onClick={generateQRCode}>
+              {t('login.qrcode.refresh')}
+            </Button>
           </div>
         );
         break;
@@ -121,86 +124,88 @@ const Login: React.FC = () => {
         {statusContent}
         <div className="qrcode-tips">
           <WechatOutlined style={{ color: '#52c41a', marginRight: 8 }} />
-          使用微信扫一扫登录
+          {t('login.qrcode.tips')}
         </div>
       </div>
     );
   };
 
   return (
-    <div style={{
-      height: '100vh',
-      display: 'flex',
+    <div style={{ 
+      height: '100vh', 
+      display: 'flex', 
+      justifyContent: 'center', 
       alignItems: 'center',
       background: '#f0f2f5'
     }}>
-      <div className="login-container">
-        <Card
-          style={{
-            width: 400,
-            padding: '24px',
-            borderRadius: '8px',
-          }}
-          title="系统登录"
-          headStyle={{
-            textAlign: 'center',
-            fontSize: '24px',
-          }}
-        >
-          <Tabs activeKey={activeKey} onChange={handleTabChange} centered>
-            <TabPane 
-              tab="账号密码登录" 
-              key="account"
-            >
-              <Form
-                name="login"
-                onFinish={onFinish}
-                autoComplete="off"
-              >
-                <Form.Item
-                  name="username"
-                  rules={[{ required: true, message: '请输入用户名' }]}
-                >
-                  <Input
-                    prefix={<UserOutlined />}
-                    placeholder="用户名"
-                    size="large"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="password"
-                  rules={[{ required: true, message: '请输入密码' }]}
-                >
-                  <Input.Password
-                    prefix={<LockOutlined />}
-                    placeholder="密码"
-                    size="large"
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    size="large"
-                    block
-                    loading={loading}
-                  >
-                    登录
-                  </Button>
-                </Form.Item>
-              </Form>
-            </TabPane>
-            <TabPane 
-              tab="微信扫码登录" 
-              key="qrcode"
-            >
-              {renderQRCode()}
-            </TabPane>
-          </Tabs>
-        </Card>
+      <div style={{ position: 'absolute', top: '24px', right: '24px' }}>
+        <LanguageSwitch />
       </div>
+      <Card
+        style={{
+          width: 400,
+          padding: '24px',
+          borderRadius: '8px',
+        }}
+        title={t('login.title')}
+        headStyle={{
+          textAlign: 'center',
+          fontSize: '24px',
+        }}
+      >
+        <Tabs activeKey={activeKey} onChange={handleTabChange} centered>
+          <TabPane 
+            tab={t('login.tab.account')}
+            key="account"
+          >
+            <Form
+              name="login"
+              onFinish={onFinish}
+              autoComplete="off"
+            >
+              <Form.Item
+                name="username"
+                rules={[{ required: true, message: t('login.username.required') }]}
+              >
+                <Input
+                  prefix={<UserOutlined />}
+                  placeholder={t('login.username')}
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                rules={[{ required: true, message: t('login.password.required') }]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined />}
+                  placeholder={t('login.password')}
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  block
+                  loading={loading}
+                >
+                  {t('login.submit')}
+                </Button>
+              </Form.Item>
+            </Form>
+          </TabPane>
+          <TabPane 
+            tab={t('login.tab.qrcode')}
+            key="qrcode"
+          >
+            {renderQRCode()}
+          </TabPane>
+        </Tabs>
+      </Card>
     </div>
   );
 };

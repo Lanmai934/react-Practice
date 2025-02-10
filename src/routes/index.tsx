@@ -1,17 +1,19 @@
+import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
-import MainLayout from '../layouts/MainLayout';
-import Dashboard from '../pages/Dashboard';
-import Users from '../pages/Users';
-import Settings from '../pages/Settings';
 import Login from '../pages/Login';
-import PrivateRoute from '../components/PrivateRoute';
-import Reports from '../pages/Reports';
+import Dashboard from '../pages/Dashboard';
+import UserManagement from '../pages/UserManagement';
+import Settings from '../pages/Settings';
 import Profile from '../pages/Profile';
+import Reports from '../pages/Reports';
+import PrivateRoute from '../components/PrivateRoute';
+import BasicLayout from '../layouts/BasicLayout';
+import MainLayout from '../layouts/MainLayout';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <Login />,
+    element: <Login />
   },
   {
     path: '/',
@@ -23,28 +25,52 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Dashboard />,
+        element: (
+          <BasicLayout>
+            <Dashboard />
+          </BasicLayout>
+        )
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <BasicLayout>
+            <Dashboard />
+          </BasicLayout>
+        )
       },
       {
-        path: 'users',
-        element: <Users />,
+        path: 'user',
+        element: (
+          <BasicLayout>
+            <UserManagement />
+          </BasicLayout>
+        )
       },
       {
         path: 'reports',
-        element: <Reports />,
+        element: (
+          <BasicLayout>
+            <Reports />
+          </BasicLayout>
+        )
       },
       {
         path: 'settings',
-        element: <Settings />,
+        element: (
+          <BasicLayout>
+            <Settings />
+          </BasicLayout>
+        )
       },
       {
         path: 'profile',
-        element: <Profile />,
-      },
-    ],
-  },
+        element: (
+          <BasicLayout>
+            <Profile />
+          </BasicLayout>
+        )
+      }
+    ]
+  }
 ]);

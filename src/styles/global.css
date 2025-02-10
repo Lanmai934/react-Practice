@@ -181,4 +181,41 @@ body {
   margin-top: 8px;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.85);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ant-layout {
+  transition: all 0.2s !important;
+}
+
+.ant-layout-sider {
+  transition: all 0.2s !important;
+}
+
+.ant-menu {
+  transition: all 0.2s !important;
+}
+
+@media screen and (max-width: 768px) {
+  .ant-layout-content {
+    margin: 80px 16px 16px !important;
+    padding: 16px !important;
+  }
 } 

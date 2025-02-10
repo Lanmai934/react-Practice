@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, message, Tabs, Upload, Avatar } from 'antd';
+import { Card, Form, Input, Button, message, Tabs, Upload, Avatar, Space, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, UploadOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
+import { useTranslation } from 'react-i18next';
 
 const { TabPane } = Tabs;
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
   const [uploading, setUploading] = useState(false);
+  const [form] = Form.useForm();
 
   // 头像上传前的校验
   const beforeUpload = (file: RcFile) => {
@@ -79,167 +82,89 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleSubmit = (values: any) => {
+    console.log('Profile values:', values);
+  };
+
   return (
-    <Card title="个人设置">
-      <Tabs defaultActiveKey="profile">
-        <TabPane tab="基本信息" key="profile">
-          <Form
-            name="profile"
-            onFinish={handleProfileChange}
-            layout="vertical"
-            initialValues={{
-              username: '管理员',
-              email: 'admin@example.com',
-              phone: '13800138000',
-            }}
-          >
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <Avatar
-                size={100}
-                src={imageUrl}
-                icon={<UserOutlined />}
-                style={{ marginBottom: 12 }}
-              />
-              <div>
+    <Row gutter={[16, 16]}>
+      <Col span={24} lg={16}>
+        <Card>
+          <Tabs defaultActiveKey="basic">
+            <TabPane tab={t('profile.basic')} key="basic">
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <Avatar
+                  size={80}
+                  src={imageUrl}
+                  icon={<UserOutlined />}
+                />
                 <Upload
-                  name="avatar"
                   showUploadList={false}
-                  action="/api/upload" // 替换为实际的上传接口
                   beforeUpload={beforeUpload}
+                  style={{ marginTop: 16, display: 'block' }}
                   onChange={handleChange}
                 >
-                  <Button icon={uploading ? <LoadingOutlined /> : <UploadOutlined />}>
-                    {uploading ? '上传中' : '更换头像'}
+                  <Button icon={<UploadOutlined />}>
+                    {uploading ? t('profile.uploading') : t('profile.changeAvatar')}
                   </Button>
                 </Upload>
-                <div style={{ marginTop: 8, color: 'rgba(0, 0, 0, 0.45)' }}>
-                  支持 JPG、PNG 格式，文件小于 2MB
-                </div>
               </div>
-            </div>
 
-            <Form.Item
-              label="用户名"
-              name="username"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input 
-                prefix={<UserOutlined />}
-                placeholder="请输入用户名"
-              />
-            </Form.Item>
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+                initialValues={{
+                  name: 'Admin',
+                  email: 'admin@example.com',
+                  phone: '1234567890'
+                }}
+              >
+                <Form.Item
+                  label={t('user.name')}
+                  name="name"
+                  rules={[{ required: true, message: t('validation.required', { field: t('user.name') }) }]}
+                >
+                  <Input />
+                </Form.Item>
 
-            <Form.Item
-              label="邮箱"
-              name="email"
-              rules={[
-                { required: true, message: '请输入邮箱' },
-                { type: 'email', message: '请输入有效的邮箱地址' }
-              ]}
-            >
-              <Input 
-                placeholder="请输入邮箱"
-              />
-            </Form.Item>
+                <Form.Item
+                  label={t('user.email')}
+                  name="email"
+                  rules={[
+                    { required: true, message: t('validation.required', { field: t('user.email') }) },
+                    { type: 'email', message: t('validation.email') }
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
 
-            <Form.Item
-              label="手机号"
-              name="phone"
-              rules={[
-                { required: true, message: '请输入手机号' },
-                { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
-              ]}
-            >
-              <Input 
-                placeholder="请输入手机号"
-              />
-            </Form.Item>
+                <Form.Item
+                  label={t('user.phone')}
+                  name="phone"
+                  rules={[{ required: true, message: t('validation.required', { field: t('user.phone') }) }]}
+                >
+                  <Input />
+                </Form.Item>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                保存修改
-              </Button>
-            </Form.Item>
-          </Form>
-        </TabPane>
+                <Form.Item>
+                  <Space>
+                    <Button type="primary" htmlType="submit">
+                      {t('button.save')}
+                    </Button>
+                    <Button>{t('button.cancel')}</Button>
+                  </Space>
+                </Form.Item>
+              </Form>
+            </TabPane>
 
-        <TabPane tab="修改密码" key="password">
-          <Form
-            name="passwordChange"
-            onFinish={handlePasswordChange}
-            layout="vertical"
-          >
-            <Form.Item
-              label="原密码"
-              name="oldPassword"
-              rules={[{ required: true, message: '请输入原密码' }]}
-            >
-              <Input.Password 
-                prefix={<LockOutlined />}
-                placeholder="请输入原密码"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="新密码"
-              name="newPassword"
-              rules={[
-                { required: true, message: '请输入新密码' },
-                passwordRules,
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (value && value === getFieldValue('oldPassword')) {
-                      return Promise.reject(new Error('新密码不能与原密码相同'));
-                    }
-                    return Promise.resolve();
-                  },
-                }),
-              ]}
-              extra={
-                <ul style={{ color: 'rgba(0, 0, 0, 0.45)', fontSize: 12, marginTop: 4 }}>
-                  <li>密码长度不少于8位</li>
-                  <li>必须包含大写字母、小写字母、数字和特殊字符</li>
-                  <li>不能与原密码相同</li>
-                </ul>
-              }
-            >
-              <Input.Password 
-                prefix={<LockOutlined />}
-                placeholder="请输入新密码"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="确认新密码"
-              name="confirmPassword"
-              dependencies={['newPassword']}
-              rules={[
-                { required: true, message: '请确认新密码' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('newPassword') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error('两次输入的密码不一致'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password 
-                prefix={<LockOutlined />}
-                placeholder="请确认新密码"
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                修改密码
-              </Button>
-            </Form.Item>
-          </Form>
-        </TabPane>
-      </Tabs>
-    </Card>
+            <TabPane tab={t('profile.security')} key="security">
+              {/* Security settings content */}
+            </TabPane>
+          </Tabs>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 
