@@ -2,16 +2,46 @@ import React from 'react';
 import { Table, Button, Space, Card, Input, Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import type { components } from '../api/types';
-type User = components['schemas']['User'];
+
+interface User {
+  key: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  lastLogin: string;
+}
 
 const UserManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [users, setUsers] = React.useState<User[]>([
-    { id: 1, name: 'Alice', email: 'alice@example.com', status: 'active' },
-    { id: 2, name: 'Bob', email: 'bob@example.com', status: 'inactive' },
-  ]);
-  const [loading] = React.useState(false);
+
+  // 示例数据
+  const users: User[] = [
+    {
+      key: '1',
+      name: 'John Brown',
+      email: 'john@example.com',
+      role: 'Admin',
+      status: 'Active',
+      lastLogin: '2024-03-20 10:00:00',
+    },
+    {
+      key: '2',
+      name: 'Jim Green',
+      email: 'jim@example.com',
+      role: 'User',
+      status: 'Active',
+      lastLogin: '2024-03-19 15:30:00',
+    },
+    {
+      key: '3',
+      name: 'Joe Black',
+      email: 'joe@example.com',
+      role: 'User',
+      status: 'Inactive',
+      lastLogin: '2024-03-18 09:45:00',
+    },
+  ];
 
   const handleDelete = (record: User) => {
     // Implement the delete logic here
@@ -29,9 +59,19 @@ const UserManagement: React.FC = () => {
       key: 'email',
     },
     {
+      title: t('user.role'),
+      dataIndex: 'role',
+      key: 'role',
+    },
+    {
       title: t('user.status'),
       dataIndex: 'status',
       key: 'status',
+    },
+    {
+      title: t('user.lastLogin'),
+      dataIndex: 'lastLogin',
+      key: 'lastLogin',
     },
     {
       title: t('common.action'),
@@ -64,12 +104,11 @@ const UserManagement: React.FC = () => {
         </Col>
       </Row>
       <Card bodyStyle={{ padding: 0 }}>
-        <Table
-          rowKey="id"
-          columns={columns}
+        <Table 
+          columns={columns} 
           dataSource={users}
-          loading={loading}
           pagination={{
+            total: 100,
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
@@ -80,4 +119,4 @@ const UserManagement: React.FC = () => {
   );
 };
 
-export default UserManagement;
+export default UserManagement; 

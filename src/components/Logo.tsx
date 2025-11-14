@@ -17,7 +17,6 @@ const Logo: React.FC<LogoProps> = ({ collapsed }) => {
       alignItems: 'center',
       justifyContent: collapsed ? 'center' : 'flex-start',
       borderBottom: `1px solid ${token.colorBorderSecondary}`,
-
     }}>
       <div style={{
         height: 32,
