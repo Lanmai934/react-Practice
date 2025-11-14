@@ -9,6 +9,7 @@ import {
   TeamOutlined,
   LineChartOutlined
 } from '@ant-design/icons';
+import { red } from '@mui/material/colors';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -103,7 +104,7 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div>
+    <div style={{ }}>
       <Row gutter={[16, 16]}>
         {stats.map((stat, index) => (
           <Col xs={24} sm={12} md={6} key={index}>
