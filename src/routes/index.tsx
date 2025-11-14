@@ -9,6 +9,7 @@ import Reports from '../pages/Reports';
 import PrivateRoute from '../components/PrivateRoute';
 import BasicLayout from '../layouts/BasicLayout';
 import MainLayout from '../layouts/MainLayout';
+import Graph from '../pages/Graph';
 
 export const router = createBrowserRouter([
   {
@@ -68,6 +69,14 @@ export const router = createBrowserRouter([
         element: (
           <BasicLayout>
             <Profile />
+          </BasicLayout>
+        )
+      },
+      {
+        path: 'Graph',
+        element: (
+          <BasicLayout>
+            <Graph />
           </BasicLayout>
         )
       }

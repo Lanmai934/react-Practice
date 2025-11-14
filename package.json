@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
+    "@antv/x6": "^2.18.1",
     "@emotion/react": "^11.x.x",
     "@emotion/styled": "^11.x.x",
     "@mui/material": "^5.x.x",
@@ -25,6 +26,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^8.56.0",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
@@ -33,13 +38,9 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "jest": "^29.7.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.22.0",
-    "vite": "^6.1.0",
-    "@testing-library/react": "^14.2.1",
-    "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/user-event": "^14.5.2",
-    "jest": "^29.7.0",
-    "@types/jest": "^29.5.12"
+    "vite": "^6.1.0"
   }
 }
