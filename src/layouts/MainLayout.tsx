@@ -102,7 +102,7 @@ const MainLayout: React.FC = () => {
   const selectedKey = location.pathname.split('/')[1] || 'dashboard';
 
   return (
-    <Layout style={{ minHeight: '100vh', background: token.colorBgContainer }}>
+    <Layout style={{ height: '100vh', background: token.colorBgContainer, }}>
       <Sider 
         width={220} 
         theme="light"

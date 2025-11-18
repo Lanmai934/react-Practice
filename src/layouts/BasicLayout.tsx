@@ -26,10 +26,9 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Content style={{ padding: '0 50px', background: '#fff' }}>
-        <Breadcrumb style={{ margin: '16px 0' }} items={getBreadcrumbItems()} />
-        <div style={{ padding: 24, minHeight: 360, background: '#fff' }}>
+    <Layout>
+      <Content style={{ padding: '0 20px', background: '#fff',overflow:'hidden' }}>
+        <div style={{ padding: 24, height: 820, background: '#fff' }}>
           {children}
         </div>
       </Content>
