@@ -85,44 +85,12 @@ export const router = createBrowserRouter([
         path: 'FormRenderer',
         element: (
           <BasicLayout>
-            <FormRenderer config={[
-                {
-                    type:'input',
-                    field:'username',
-                    label:'用户名',
-                    props:{
-                        placeholder:'请输入用户名'
-                    }
-                },
-                {
-                    type:'select',
-                    field:'gender',
-                    label:'性别',
-                    props:{
-                        options:[
-                            {
-                                label:'男',
-                                value:'male'
-                            },
-                            {
-                                label:'女',
-                                value:'female'
-                            }
-                        ]
-                    }
-                },
-                {
-                    type:'date',
-                    field:'birthday',
-                    label:'出生日期',
-                    props:{
-                        format:'YYYY-MM-DD'
-                    }
-                }
-            ]} />
+            <FormRenderer 
+            />
           </BasicLayout>
         )
-      }
+      },
+      
     ]
   }
 ]);
