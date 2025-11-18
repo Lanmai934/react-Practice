@@ -51,6 +51,20 @@ const FlowEditor: React.FC = () => {
   const [showPorts, setShowPorts] = useState(false);
   const [autoSave, setAutoSave] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [canvasWidth, setCanvasWidth] = useState<number>(1200);
+  const [canvasHeight, setCanvasHeight] = useState<number>(800);
+  const [presetSize, setPresetSize] = useState<string>('custom');
+  const [bgColor, setBgColor] = useState<string>('#ffffff');
+  const [bgGradient, setBgGradient] = useState<string>('');
+  const [bgImageUrl, setBgImageUrl] = useState<string | null>(null);
+  const [bgOpacity, setBgOpacity] = useState<number>(1);
+  const [bgScale, setBgScale] = useState<number>(1);
+  const [bgPosX, setBgPosX] = useState<number>(0);
+  const [bgPosY, setBgPosY] = useState<number>(0);
+  const [cropTop, setCropTop] = useState<number>(0);
+  const [cropRight, setCropRight] = useState<number>(0);
+  const [cropBottom, setCropBottom] = useState<number>(0);
+  const [cropLeft, setCropLeft] = useState<number>(0);
   
 
   
@@ -241,6 +255,15 @@ const FlowEditor: React.FC = () => {
     };
   }, [showGrid, snapEnabled, autoSave, form]);
 
+  // 画布尺寸变化时调整图尺寸
+  useEffect(() => {
+    if (graph) {
+      try {
+        (graph as any).resize?.(canvasWidth, canvasHeight);
+      } catch {}
+    }
+  }, [graph, canvasWidth, canvasHeight]);
+
   // 工具栏操作
   const handleZoomIn = () => graph && graph.zoom(0.1);
   const handleZoomOut = () => graph && graph.zoom(-0.1);
@@ -286,6 +309,91 @@ const FlowEditor: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url)
     message.success('已导出');
+  };
+
+  // 画布导出为图片（PNG/JPEG）
+  const handleExportImage = async (format: 'png' | 'jpeg', quality: number = 0.92) => {
+    if (!containerRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const fillSolid = () => {
+      ctx.fillStyle = bgColor || '#ffffff';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    };
+    if (bgGradient && bgGradient.trim().startsWith('linear-gradient')) {
+      const m = bgGradient.match(/linear-gradient\(([^,]+),\s*([^,]+),\s*([^\)]+)\)/);
+      if (m) {
+        const dir = m[1].trim();
+        const c1 = m[2].trim();
+        const c2 = m[3].trim();
+        let grad;
+        if (dir.includes('right')) {
+          grad = ctx.createLinearGradient(0, 0, canvasWidth, 0);
+        } else {
+          grad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+        }
+        grad.addColorStop(0, c1);
+        grad.addColorStop(1, c2);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      } else {
+        fillSolid();
+      }
+    } else {
+      fillSolid();
+    }
+
+    if (bgImageUrl) {
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          ctx.save();
+          if (cropTop || cropRight || cropBottom || cropLeft) {
+            ctx.beginPath();
+            ctx.rect(cropLeft, cropTop, canvasWidth - cropLeft - cropRight, canvasHeight - cropTop - cropBottom);
+            ctx.clip();
+          }
+          ctx.globalAlpha = Math.max(0, Math.min(1, bgOpacity));
+          const dw = img.naturalWidth * bgScale;
+          const dh = img.naturalHeight * bgScale;
+          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, bgPosX, bgPosY, dw, dh);
+          ctx.restore();
+          resolve();
+        };
+        img.src = bgImageUrl!;
+      });
+    }
+
+    const svgEl = containerRef.current.querySelector('svg');
+    if (svgEl) {
+      const clone = svgEl.cloneNode(true) as SVGSVGElement;
+      clone.setAttribute('width', String(canvasWidth));
+      clone.setAttribute('height', String(canvasHeight));
+      const xml = new XMLSerializer().serializeToString(clone);
+      const svgBlob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve();
+        };
+        img.src = url;
+      });
+    }
+
+    const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+    const dataUrl = canvas.toDataURL(mime, quality);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `canvas.${format}`;
+    a.click();
   };
 
   const handleImportJSON = (file: File) => {
@@ -735,29 +843,21 @@ const FlowEditor: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', gap: 12}}>
-      {/* 左侧工具栏 */}
-      <Card style={{ width: 240, border: '1px solid #e5e5e5',overflow:'scroll',height: 'calc(100vh - 300px)' }} title="组件库">
-        <div>
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>节点</div>
+    <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 260px', gap: 24, alignItems: 'stretch',marginBottom:24 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8,overflow:'scroll',paddingRight:12,height:'800px' }}>
+        <Card title="节点" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
             {nodeTypes.map((type) => nodePaletteItem(type, placingType === type))}
           </div>
-        </div>
+        </Card>
 
-        <Divider />
-
-        <div>
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>连接线</div>
+        <Card title="连接线" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
             {edgeTypes.map((type) => edgePaletteItem(type, placingEdgeType === type))}
           </div>
-        </div>
+        </Card>
 
-        <Divider />
-
-        <div >
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>画布设置</div>
+        <Card title="画布设置" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span>网格</span>
             <Switch checked={showGrid} onChange={setShowGrid} size="small" />
@@ -774,35 +874,38 @@ const FlowEditor: React.FC = () => {
             <span>自动保存</span>
             <Switch checked={autoSave} onChange={setAutoSave} size="small" />
           </div>
-        </div>
+          <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+            <Select
+              value={presetSize}
+              onChange={(v) => {
+                setPresetSize(v);
+                const map: Record<string, { w: number; h: number }> = {
+                  custom: { w: canvasWidth, h: canvasHeight },
+                  A4: { w: 794, h: 1123 },
+                  A3: { w: 1123, h: 1587 },
+                  Mobile: { w: 1080, h: 1920 },
+                  Square: { w: 1024, h: 1024 },
+                };
+                const s = map[v] || map.custom;
+                setCanvasWidth(s.w);
+                setCanvasHeight(s.h);
+              }}
+              options={[
+                { label: '自定义', value: 'custom' },
+                { label: 'A4', value: 'A4' },
+                { label: 'A3', value: 'A3' },
+                { label: '手机屏幕', value: 'Mobile' },
+                { label: '正方形', value: 'Square' },
+              ]}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <InputNumber addonBefore="宽" min={100} max={4000} value={canvasWidth} onChange={(v) => setCanvasWidth(Number(v) || 0)} />
+              <InputNumber addonBefore="高" min={100} max={4000} value={canvasHeight} onChange={(v) => setCanvasHeight(Number(v) || 0)} />
+            </div>
+          </div>
+        </Card>
 
-        <Divider />
-
-        <div >
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>操作</div>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Button icon={<UndoOutlined />} onClick={handleUndo} style={{ width: '100%' }}>
-              撤销
-            </Button>
-            <Button icon={<RedoOutlined />} onClick={handleRedo} style={{ width: '100%' }}>
-              重做
-            </Button>
-            <Button icon={<ZoomOutOutlined />} onClick={handleZoomOut} style={{ width: '100%' }}>
-              缩小
-            </Button>
-            <Button icon={<ZoomInOutlined />} onClick={handleZoomIn} style={{ width: '100%' }}>
-              放大
-            </Button>
-            <Button icon={<CompressOutlined />} onClick={handleFit} style={{ width: '100%' }}>
-              适配
-            </Button>
-          </Space>
-        </div>
-
-        <Divider />
-
-        <div >
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>文件</div>
+        <Card title="文件" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Button icon={<SaveOutlined />} onClick={handleSave} type="primary" style={{ width: '100%' }}>
               保存
@@ -813,84 +916,141 @@ const FlowEditor: React.FC = () => {
             <Button icon={<DownloadOutlined />} onClick={handleExportJSON} style={{ width: '100%' }}>
               导出JSON
             </Button>
-            <div style={{ width: '100%',paddingLeft:30 }}>
-              <Upload accept=".json" showUploadList={false} beforeUpload={handleImportJSON} >
-              <Button icon={<UploadOutlined />} style={{ width: '100%' }}>
-                导入JSON
-              </Button>
+            <div style={{ width: '100%'}}>
+               <Upload accept=".json" showUploadList={false} beforeUpload={handleImportJSON} style={{ width: '100%' }}>
+              <Button icon={<UploadOutlined />} style={{ width: '100%' }}>导入JSON</Button>
             </Upload>
             </div>
-            
+           
           </Space>
-        </div>
+        </Card>
 
-        <Divider />
-
-        <Button icon={<EditOutlined />} onClick={handleValidateFlow} style={{ width: '100%' }}>
-          验证流程
-        </Button>
-
-        {lastSaved && (
-          <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-            最后保存：{lastSaved.toLocaleTimeString()}
+        <Card title="背景设置" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
+          <div style={{ display: 'grid', gap: 8 }}>
+             <div style={{ width: 60 }}>背景色</div>
+            <div style={{ display: 'flex',  alignContent: 'center',
+                gap: 8,
+               }}>
+              <ColorPicker value={bgColor} onChange={(_, hex) => setBgColor(hex)} />
+              <Input placeholder="#hex 或 rgb() 或 hsl()" value={bgColor} onChange={(e) => setBgColor(e.target.value)} />
+            </div>
+            <Input placeholder="linear-gradient(to right, #fff, #eee)" value={bgGradient} onChange={(e) => setBgGradient(e.target.value)} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Upload accept="image/*" showUploadList={false} beforeUpload={(file) => { const url = URL.createObjectURL(file); setBgImageUrl(url); return false; }}>
+                <Button icon={<UploadOutlined />}>上传背景图</Button>
+              </Upload>
+              <InputNumber addonBefore="透明" min={0} max={1} step={0.05} value={bgOpacity} onChange={(v) => setBgOpacity(Number(v) || 0)} />
+              <InputNumber addonBefore="缩放" min={0.1} max={5} step={0.1} value={bgScale} onChange={(v) => setBgScale(Number(v) || 1)} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column',gap: 8}}>
+              <InputNumber addonBefore="X" min={-2000} max={2000} value={bgPosX} onChange={(v) => setBgPosX(Number(v) || 0)} />
+              <InputNumber addonBefore="Y" min={-2000} max={2000} value={bgPosY} onChange={(v) => setBgPosY(Number(v) || 0)} />
+            </div>
+            <div style={{ display: 'grid',  gap: 8 , flexDirection: 'column',}}>
+              <InputNumber addonBefore="上" min={0} max={canvasHeight} value={cropTop} onChange={(v) => setCropTop(Number(v) || 0)} />
+              <InputNumber addonBefore="右" min={0} max={canvasWidth} value={cropRight} onChange={(v) => setCropRight(Number(v) || 0)} />
+              <InputNumber addonBefore="下" min={0} max={canvasHeight} value={cropBottom} onChange={(v) => setCropBottom(Number(v) || 0)} />
+              <InputNumber addonBefore="左" min={0} max={canvasWidth} value={cropLeft} onChange={(v) => setCropLeft(Number(v) || 0)} />
+            </div>
           </div>
-        )}
-      </Card>
+        </Card>
 
-      {/* 中间画布 */}
-      <Card style={{ flex: 1, border: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column',height: '100vh',overflow:'scroll' }}>
-        <div style={{ marginBottom: 8, fontSize: 12, color: '#666' }}>
-          {placingEdgeType && (
-            <span style={{ color: '#1890ff' }}>点击两个节点以创建连接线（当前：{placingEdgeType}）</span>
-          )}
-          {placingType && (
-            <span style={{ color: '#1890ff' }}>点击空白处以放置节点（当前：{getNodeLabel(placingType)}）</span>
-          )}
-        </div>
-        <div ref={containerRef} style={{ flex: 1, background: '#fff', minHeight: 600 }} />
-      </Card>
+        <Card title="导出" style={{ height: '300px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexDirection: 'column'}}>
+            <InputNumber addonBefore="质量" min={0.1} max={1} step={0.05} value={0.92} readOnly />
+            <Button onClick={() => handleExportImage('png', 0.92)} icon={<DownloadOutlined />}>下载PNG</Button>
+            <Button onClick={() => handleExportImage('jpeg', 0.92)} icon={<DownloadOutlined />}>下载JPEG</Button>
+          </div>
+        </Card>
 
-      {/* 右侧属性面板 */}
-      <Card style={{ width: 300, border: '1px solid #e5e5e5',overflow:'scroll',height: 'calc(100vh - 300px)'  }} title="属性">
-        <Form layout="vertical" form={form} onFinish={handleFormFinish}>
-          <Form.Item name="type" label="类型">
-            <Select options={[{ label: '节点', value: 'node' }, { label: '边', value: 'edge' }]} disabled />
-          </Form.Item>
-          {selectedCellId &&
-            graph &&
-            (() => {
-              const cell = graph.getCellById(selectedCellId);
-              if (!cell) return null;
-              const props = cell.isEdge() ? edgeEditableProps : nodeEditableProps;
-              return (
-                <>
-                  {props.map((field) => {
-                    const value = getCellValue(cell, field.path);
-                    return (
-                      <Form.Item key={field.path} label={field.label}>
-                        {renderFieldEditor(field, value, (val) => {
-                          setCellValue(cell, field.path, val);
-                          const newFields: Record<string, unknown> = {};
-                          props.forEach((p) => {
-                            newFields[p.path] = getCellValue(cell, p.path);
-                          });
-                          form.setFieldsValue(newFields);
-                        })}
-                      </Form.Item>
-                    );
-                  })}
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                      应用
-                    </Button>
-                  </Form.Item>
-                </>
-              );
-            })()}
-        </Form>
-      </Card>
+        <Card title="操作" style={{ height: '350px', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexDirection: 'column'}}>
+            <Button icon={<UndoOutlined />} onClick={handleUndo} style={{ width: '100%' }}>撤销</Button>
+            <Button icon={<RedoOutlined />} onClick={handleRedo} style={{ width: '100%' }}>重做</Button>
+            <Button icon={<ZoomOutOutlined />} onClick={handleZoomOut} style={{ width: '100%' }}>缩小</Button>
+            <Button icon={<ZoomInOutlined />} onClick={handleZoomIn} style={{ width: '100%' }}>放大</Button>
+            <Button icon={<CompressOutlined />} onClick={handleFit} style={{ width: '100%' }}>适配</Button>
+            <Button icon={<EditOutlined />} onClick={handleValidateFlow} style={{ width: '100%' }}>验证流程</Button>
+          </div>
+        </Card>
+      </div>
 
-      {/* 右键菜单 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Card title="画布" style={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
+          <div style={{ marginBottom: 8, fontSize: 12, color: '#666' }}>
+            {placingEdgeType && (<span style={{ color: '#1890ff' }}>点击两个节点以创建连接线（当前：{placingEdgeType}）</span>)}
+            {placingType && (<span style={{ color: '#1890ff' }}>点击空白处以放置节点（当前：{getNodeLabel(placingType)}）</span>)}
+          </div>
+          <div style={{ height: 'calc(100% - 24px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', overflow: 'auto', scrollBehavior: 'smooth' }}>
+            <div
+              style={{
+                position: 'relative',
+                width: canvasWidth,
+                height: canvasHeight,
+                background: bgGradient ? bgGradient : bgColor,
+                border: '1px solid #eee',
+              }}
+            >
+              {bgImageUrl && (
+                <img
+                  src={bgImageUrl}
+                  alt="bg"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    transform: `translate(${bgPosX}px, ${bgPosY}px) scale(${bgScale})`,
+                    transformOrigin: 'top left',
+                    opacity: Math.max(0, Math.min(1, bgOpacity)),
+                    clipPath: `inset(${cropTop}px ${cropRight}px ${cropBottom}px ${cropLeft}px)`,
+                    pointerEvents: 'none',
+                  }}
+                />
+              )}
+              <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+            </div>
+          </div>
+        </Card>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12,height:'800px' }}>
+        <Card title="属性" style={{ maxHeight: '40vh', display: 'flex', flexDirection: 'column' }} headStyle={{ position: 'sticky', top: 0, background: '#fff', zIndex: 1 }} bodyStyle={{ overflowY: 'auto', scrollBehavior: 'smooth', padding: 8 }}>
+          <Form layout="vertical" form={form} onFinish={handleFormFinish}>
+            <Form.Item name="type" label="类型">
+              <Select options={[{ label: '节点', value: 'node' }, { label: '边', value: 'edge' }]} disabled />
+            </Form.Item>
+            {selectedCellId &&
+              graph &&
+              (() => {
+                const cell = graph.getCellById(selectedCellId);
+                if (!cell) return null;
+                const props = cell.isEdge() ? edgeEditableProps : nodeEditableProps;
+                return (
+                  <>
+                    {props.map((field) => {
+                      const value = getCellValue(cell, field.path);
+                      return (
+                        <Form.Item key={field.path} label={field.label}>
+                          {renderFieldEditor(field, value, (val) => {
+                            setCellValue(cell, field.path, val);
+                            const newFields: Record<string, unknown> = {};
+                            props.forEach((p) => {
+                              newFields[p.path] = getCellValue(cell, p.path);
+                            });
+                            form.setFieldsValue(newFields);
+                          })}
+                        </Form.Item>
+                      );
+                    })}
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit">应用</Button>
+                    </Form.Item>
+                  </>
+                );
+              })()}
+          </Form>
+        </Card>
+      </div>
+
       {contextMenuVisible && (
         <div
           style={{
@@ -905,11 +1065,7 @@ const FlowEditor: React.FC = () => {
           }}
           onMouseLeave={() => setContextMenuVisible(false)}
         >
-          <Menu
-            items={contextMenuItems}
-            onClick={handleContextMenuClick}
-            style={{ border: 'none' }}
-          />
+          <Menu items={contextMenuItems} onClick={handleContextMenuClick} style={{ border: 'none' }} />
         </div>
       )}
     </div>
