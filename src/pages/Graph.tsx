@@ -737,8 +737,8 @@ const FlowEditor: React.FC = () => {
   return (
     <div style={{ display: 'flex', gap: 12}}>
       {/* 左侧工具栏 */}
-      <Card style={{ width: 240, border: '1px solid #e5e5e5',overflow:'scroll',height: '100vh' }} title="组件库">
-        <div style={{ marginBottom: 12 }}>
+      <Card style={{ width: 240, border: '1px solid #e5e5e5',overflow:'scroll',height: 'calc(100vh - 300px)' }} title="组件库">
+        <div>
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>节点</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
             {nodeTypes.map((type) => nodePaletteItem(type, placingType === type))}
@@ -747,7 +747,7 @@ const FlowEditor: React.FC = () => {
 
         <Divider />
 
-        <div style={{ marginBottom: 12 }}>
+        <div>
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>连接线</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
             {edgeTypes.map((type) => edgePaletteItem(type, placingEdgeType === type))}
@@ -756,7 +756,7 @@ const FlowEditor: React.FC = () => {
 
         <Divider />
 
-        <div style={{ marginBottom: 12 }}>
+        <div >
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>画布设置</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span>网格</span>
@@ -778,7 +778,7 @@ const FlowEditor: React.FC = () => {
 
         <Divider />
 
-        <div style={{ marginBottom: 12 }}>
+        <div >
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>操作</div>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Button icon={<UndoOutlined />} onClick={handleUndo} style={{ width: '100%' }}>
@@ -801,7 +801,7 @@ const FlowEditor: React.FC = () => {
 
         <Divider />
 
-        <div style={{ marginBottom: 12 }}>
+        <div >
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>文件</div>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Button icon={<SaveOutlined />} onClick={handleSave} type="primary" style={{ width: '100%' }}>
@@ -813,11 +813,14 @@ const FlowEditor: React.FC = () => {
             <Button icon={<DownloadOutlined />} onClick={handleExportJSON} style={{ width: '100%' }}>
               导出JSON
             </Button>
-            <Upload accept=".json" showUploadList={false} beforeUpload={handleImportJSON}>
+            <div style={{ width: '100%',paddingLeft:30 }}>
+              <Upload accept=".json" showUploadList={false} beforeUpload={handleImportJSON} >
               <Button icon={<UploadOutlined />} style={{ width: '100%' }}>
                 导入JSON
               </Button>
             </Upload>
+            </div>
+            
           </Space>
         </div>
 
@@ -848,7 +851,7 @@ const FlowEditor: React.FC = () => {
       </Card>
 
       {/* 右侧属性面板 */}
-      <Card style={{ width: 300, border: '1px solid #e5e5e5',overflow:'scroll',height: '100vh' }} title="属性">
+      <Card style={{ width: 300, border: '1px solid #e5e5e5',overflow:'scroll',height: 'calc(100vh - 300px)'  }} title="属性">
         <Form layout="vertical" form={form} onFinish={handleFormFinish}>
           <Form.Item name="type" label="类型">
             <Select options={[{ label: '节点', value: 'node' }, { label: '边', value: 'edge' }]} disabled />
