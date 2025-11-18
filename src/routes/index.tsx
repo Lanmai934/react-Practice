@@ -10,6 +10,7 @@ import PrivateRoute from '../components/PrivateRoute';
 import BasicLayout from '../layouts/BasicLayout';
 import MainLayout from '../layouts/MainLayout';
 import Graph from '../pages/Graph';
+import FormRenderer from '../pages/FormRenderer';
 
 export const router = createBrowserRouter([
   {
@@ -77,6 +78,48 @@ export const router = createBrowserRouter([
         element: (
           <BasicLayout>
             <Graph />
+          </BasicLayout>
+        )
+      },
+      {
+        path: 'FormRenderer',
+        element: (
+          <BasicLayout>
+            <FormRenderer config={[
+                {
+                    type:'input',
+                    field:'username',
+                    label:'用户名',
+                    props:{
+                        placeholder:'请输入用户名'
+                    }
+                },
+                {
+                    type:'select',
+                    field:'gender',
+                    label:'性别',
+                    props:{
+                        options:[
+                            {
+                                label:'男',
+                                value:'male'
+                            },
+                            {
+                                label:'女',
+                                value:'female'
+                            }
+                        ]
+                    }
+                },
+                {
+                    type:'date',
+                    field:'birthday',
+                    label:'出生日期',
+                    props:{
+                        format:'YYYY-MM-DD'
+                    }
+                }
+            ]} />
           </BasicLayout>
         )
       }

@@ -89,6 +89,11 @@ const MainLayout: React.FC = () => {
       key: 'Graph', 
       icon: <SettingOutlined />,
       label: t('menu.Graph') 
+    },
+    { 
+      key: 'FormRenderer', 
+      icon: <SettingOutlined />,
+      label: t('menu.FormRenderer') 
     }
   ];
 
