@@ -1,6 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Select } from 'antd';
+import { Select } from "antd";
+import type React from "react";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
@@ -23,4 +23,4 @@ const LanguageSwitch: React.FC = () => {
   );
 };
 
-export default LanguageSwitch; 
+export default LanguageSwitch;

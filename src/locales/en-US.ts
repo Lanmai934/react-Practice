@@ -7,7 +7,7 @@ export default {
     "menu.profile": "Profile",
     "menu.settings": "Settings",
     "menu.reports": "Reports",
-    
+
     // Buttons
     "button.submit": "Submit",
     "button.cancel": "Cancel",
@@ -19,7 +19,7 @@ export default {
     "button.reset": "Reset",
     "button.back": "Back",
     "button.confirm": "Confirm",
-    
+
     // Common
     "common.welcome": "Welcome",
     "common.loading": "Loading...",
@@ -33,7 +33,7 @@ export default {
     "common.action": "Action",
     "common.more": "More",
     "common.description": "Description",
-    
+
     // Login page
     "login.title": "System Login",
     "login.tab.account": "Account Login",
@@ -58,7 +58,7 @@ export default {
     "dashboard.activeUsers": "Active Users",
     "dashboard.todayVisits": "Today's Visits",
     "dashboard.totalOrders": "Total Orders",
-    
+
     // User Management
     "user.title": "User Management",
     "user.name": "Username",
@@ -73,7 +73,7 @@ export default {
     "user.edit": "Edit User",
     "user.delete": "Delete User",
     "user.deleteConfirm": "Are you sure you want to delete this user?",
-    
+
     // System Settings
     "settings.title": "System Settings",
     "settings.general": "General Settings",
@@ -81,14 +81,14 @@ export default {
     "settings.notification": "Notification Settings",
     "settings.theme": "Theme Settings",
     "settings.language": "Language Settings",
-    
+
     // Form Validation
     "validation.required": "{field} is required",
     "validation.email": "Please enter a valid email address",
     "validation.phone": "Please enter a valid phone number",
     "validation.min": "{field} must be at least {min} characters",
     "validation.max": "{field} cannot exceed {max} characters",
-    
+
     // Messages
     "message.saveSuccess": "Saved successfully",
     "message.saveFailed": "Save failed",
@@ -97,7 +97,7 @@ export default {
     "message.updateSuccess": "Updated successfully",
     "message.updateFailed": "Update failed",
     "message.networkError": "Network error, please try again later",
-    
+
     // Error Pages
     "error.404": "Page Not Found",
     "error.403": "Access Denied",
@@ -129,5 +129,5 @@ export default {
     "reports.week": "This Week",
     "reports.month": "This Month",
     "reports.compare": "YoY Compare",
-  }
-} 
+  },
+};

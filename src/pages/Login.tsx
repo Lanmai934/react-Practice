@@ -1,26 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Card, message, Tabs, QRCode, Spin } from 'antd';
-import { UserOutlined, LockOutlined, WechatOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import LanguageSwitch from '../components/LanguageSwitch';
+import { LockOutlined, UserOutlined, WechatOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, message, QRCode, Spin, Tabs } from "antd";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import LanguageSwitch from "../components/LanguageSwitch";
 
 const { TabPane } = Tabs;
 
 // 二维码状态
 enum QRCodeStatus {
-  NEW = 'NEW',           // 新生成的二维码
-  SCANNED = 'SCANNED',   // 已扫描
-  CONFIRMED = 'CONFIRMED', // 已确认
-  EXPIRED = 'EXPIRED',   // 已过期
+  NEW = "NEW", // 新生成的二维码
+  SCANNED = "SCANNED", // 已扫描
+  CONFIRMED = "CONFIRMED", // 已确认
+  EXPIRED = "EXPIRED", // 已过期
 }
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [qrCodeStatus, setQrCodeStatus] = useState<QRCodeStatus>(QRCodeStatus.NEW);
-  const [activeKey, setActiveKey] = useState('account');
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [qrCodeStatus, setQrCodeStatus] = useState<QRCodeStatus>(
+    QRCodeStatus.NEW,
+  );
+  const [activeKey, setActiveKey] = useState("account");
   const { t } = useTranslation();
 
   // 生成二维码
@@ -30,15 +33,15 @@ const Login: React.FC = () => {
       setQrCodeUrl(fakeQrCode);
       setQrCodeStatus(QRCodeStatus.NEW);
     } catch (error) {
-      message.error(t('login.qrcode.error'));
+      message.error(t("login.qrcode.error"));
     }
   };
 
   // 轮询检查二维码状态
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    
-    if (activeKey === 'qrcode' && qrCodeStatus !== QRCodeStatus.CONFIRMED) {
+
+    if (activeKey === "qrcode" && qrCodeStatus !== QRCodeStatus.CONFIRMED) {
       timer = setInterval(async () => {
         // 这里应该调用后端接口检查状态
         // 示例：
@@ -47,9 +50,9 @@ const Login: React.FC = () => {
           setQrCodeStatus(QRCodeStatus.SCANNED);
         } else if (random < 0.4) {
           setQrCodeStatus(QRCodeStatus.CONFIRMED);
-          localStorage.setItem('isLoggedIn', 'true');
-          message.success('登录成功');
-          navigate('/dashboard');
+          localStorage.setItem("isLoggedIn", "true");
+          message.success("登录成功");
+          navigate("/dashboard");
         } else if (random < 0.5) {
           setQrCodeStatus(QRCodeStatus.EXPIRED);
         }
@@ -66,7 +69,7 @@ const Login: React.FC = () => {
   // 切换登录方式时重置状态
   const handleTabChange = (key: string) => {
     setActiveKey(key);
-    if (key === 'qrcode') {
+    if (key === "qrcode") {
       generateQRCode();
     }
   };
@@ -75,12 +78,12 @@ const Login: React.FC = () => {
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true);
     try {
-      if (values.username === 'admin' && values.password === 'admin') {
-        localStorage.setItem('isLoggedIn', 'true');
-        message.success(t('login.success'));
-        navigate('/dashboard');
+      if (values.username === "admin" && values.password === "admin") {
+        localStorage.setItem("isLoggedIn", "true");
+        message.success(t("login.success"));
+        navigate("/dashboard");
       } else {
-        message.error(t('login.error'));
+        message.error(t("login.error"));
       }
     } finally {
       setLoading(false);
@@ -90,22 +93,22 @@ const Login: React.FC = () => {
   // 渲染二维码内容
   const renderQRCode = () => {
     let statusContent = null;
-    
+
     switch (qrCodeStatus) {
       case QRCodeStatus.SCANNED:
         statusContent = (
           <div className="qrcode-mask">
-            <WechatOutlined style={{ fontSize: 32, color: '#52c41a' }} />
-            <p>{t('login.qrcode.scanned')}</p>
+            <WechatOutlined style={{ fontSize: 32, color: "#52c41a" }} />
+            <p>{t("login.qrcode.scanned")}</p>
           </div>
         );
         break;
       case QRCodeStatus.EXPIRED:
         statusContent = (
           <div className="qrcode-mask">
-            <p>{t('login.qrcode.expired')}</p>
+            <p>{t("login.qrcode.expired")}</p>
             <Button type="link" onClick={generateQRCode}>
-              {t('login.qrcode.refresh')}
+              {t("login.qrcode.refresh")}
             </Button>
           </div>
         );
@@ -117,70 +120,69 @@ const Login: React.FC = () => {
     return (
       <div className="qrcode-container">
         <QRCode
-          value={qrCodeUrl || '-'}
-          status={!qrCodeUrl ? 'loading' : 'active'}
+          value={qrCodeUrl || "-"}
+          status={!qrCodeUrl ? "loading" : "active"}
           style={{ marginBottom: 24 }}
         />
         {statusContent}
         <div className="qrcode-tips">
-          <WechatOutlined style={{ color: '#52c41a', marginRight: 8 }} />
-          {t('login.qrcode.tips')}
+          <WechatOutlined style={{ color: "#52c41a", marginRight: 8 }} />
+          {t("login.qrcode.tips")}
         </div>
       </div>
     );
   };
 
   return (
-    <div style={{ 
-      height: '100vh', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center',
-      background: '#f0f2f5'
-    }}>
-      <div style={{ position: 'absolute', top: '24px', right: '24px' }}>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f0f2f5",
+      }}
+    >
+      <div style={{ position: "absolute", top: "24px", right: "24px" }}>
         <LanguageSwitch />
       </div>
       <Card
         style={{
           width: 400,
-          padding: '24px',
-          borderRadius: '8px',
+          padding: "24px",
+          borderRadius: "8px",
         }}
-        title={t('login.title')}
+        title={t("login.title")}
         headStyle={{
-          textAlign: 'center',
-          fontSize: '24px',
+          textAlign: "center",
+          fontSize: "24px",
         }}
       >
         <Tabs activeKey={activeKey} onChange={handleTabChange} centered>
-          <TabPane 
-            tab={t('login.tab.account')}
-            key="account"
-          >
-            <Form
-              name="login"
-              onFinish={onFinish}
-              autoComplete="off"
-            >
+          <TabPane tab={t("login.tab.account")} key="account">
+            <Form name="login" onFinish={onFinish} autoComplete="off">
               <Form.Item
                 name="username"
-                rules={[{ required: true, message: t('login.username.required') }]}
+                rules={[
+                  { required: true, message: t("login.username.required") },
+                ]}
               >
                 <Input
                   prefix={<UserOutlined />}
-                  placeholder={t('login.username')}
+                  placeholder={t("login.username")}
                   size="large"
                 />
               </Form.Item>
 
               <Form.Item
                 name="password"
-                rules={[{ required: true, message: t('login.password.required') }]}
+                rules={[
+                  { required: true, message: t("login.password.required") },
+                ]}
               >
                 <Input.Password
                   prefix={<LockOutlined />}
-                  placeholder={t('login.password')}
+                  placeholder={t("login.password")}
                   size="large"
                 />
               </Form.Item>
@@ -193,15 +195,12 @@ const Login: React.FC = () => {
                   block
                   loading={loading}
                 >
-                  {t('login.submit')}
+                  {t("login.submit")}
                 </Button>
               </Form.Item>
             </Form>
           </TabPane>
-          <TabPane 
-            tab={t('login.tab.qrcode')}
-            key="qrcode"
-          >
+          <TabPane tab={t("login.tab.qrcode")} key="qrcode">
             {renderQRCode()}
           </TabPane>
         </Tabs>
@@ -210,4 +209,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, Row, Col, DatePicker, Space, Radio } from 'antd';
-import { useTranslation } from 'react-i18next';
-import * as echarts from 'echarts';
-import { useEffect } from 'react';
+import { Card, Col, DatePicker, Radio, Row, Space } from "antd";
+import * as echarts from "echarts";
+import type React from "react";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const { RangePicker } = DatePicker;
 
@@ -11,47 +11,51 @@ const Reports: React.FC = () => {
 
   useEffect(() => {
     // 用户增长趋势图表
-    const userChart = echarts.init(document.getElementById('userGrowthChart'));
+    const userChart = echarts.init(document.getElementById("userGrowthChart"));
     userChart.setOption({
       title: {
-        text: t('reports.userGrowth')
+        text: t("reports.userGrowth"),
       },
       tooltip: {
-        trigger: 'axis'
+        trigger: "axis",
       },
       xAxis: {
-        type: 'category',
-        data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        type: "category",
+        data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
       },
       yAxis: {
-        type: 'value'
+        type: "value",
       },
-      series: [{
-        data: [150, 230, 224, 218, 135, 147],
-        type: 'line'
-      }]
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147],
+          type: "line",
+        },
+      ],
     });
 
     // 访问量统计图表
-    const visitChart = echarts.init(document.getElementById('visitChart'));
+    const visitChart = echarts.init(document.getElementById("visitChart"));
     visitChart.setOption({
       title: {
-        text: t('reports.visitStats')
+        text: t("reports.visitStats"),
       },
       tooltip: {
-        trigger: 'axis'
+        trigger: "axis",
       },
       xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        type: "category",
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       },
       yAxis: {
-        type: 'value'
+        type: "value",
       },
-      series: [{
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'bar'
-      }]
+      series: [
+        {
+          data: [820, 932, 901, 934, 1290, 1330, 1320],
+          type: "bar",
+        },
+      ],
     });
 
     // 清理函数
@@ -67,9 +71,9 @@ const Reports: React.FC = () => {
         <Col flex="1">
           <Space>
             <Radio.Group defaultValue="week">
-              <Radio.Button value="day">{t('reports.today')}</Radio.Button>
-              <Radio.Button value="week">{t('reports.week')}</Radio.Button>
-              <Radio.Button value="month">{t('reports.month')}</Radio.Button>
+              <Radio.Button value="day">{t("reports.today")}</Radio.Button>
+              <Radio.Button value="week">{t("reports.week")}</Radio.Button>
+              <Radio.Button value="month">{t("reports.month")}</Radio.Button>
             </Radio.Group>
             <RangePicker />
           </Space>
@@ -91,4 +95,4 @@ const Reports: React.FC = () => {
   );
 };
 
-export default Reports; 
+export default Reports;

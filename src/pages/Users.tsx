@@ -1,7 +1,7 @@
-import React from 'react';
-import { Table, Card, Button, Space, message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card, message, Space, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import type React from "react";
 
 interface UserType {
   key: string;
@@ -16,52 +16,52 @@ const Users: React.FC = () => {
   // 示例数据
   const data: UserType[] = [
     {
-      key: '1',
+      key: "1",
       id: 1,
-      name: '张三',
-      email: 'zhangsan@example.com',
-      role: '管理员',
-      status: '正常',
+      name: "张三",
+      email: "zhangsan@example.com",
+      role: "管理员",
+      status: "正常",
     },
     {
-      key: '2',
+      key: "2",
       id: 2,
-      name: '李四',
-      email: 'lisi@example.com',
-      role: '用户',
-      status: '正常',
+      name: "李四",
+      email: "lisi@example.com",
+      role: "用户",
+      status: "正常",
     },
   ];
 
   const columns: ColumnsType<UserType> = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: '用户名',
-      dataIndex: 'name',
-      key: 'name',
+      title: "用户名",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
+      title: "邮箱",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: '角色',
-      dataIndex: 'role',
-      key: 'role',
+      title: "角色",
+      dataIndex: "role",
+      key: "role",
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
     },
     {
-      title: '操作',
-      key: 'action',
+      title: "操作",
+      key: "action",
       render: (_, record) => (
         <Space size="middle">
           <Button type="link" onClick={() => handleEdit(record)}>
@@ -76,7 +76,7 @@ const Users: React.FC = () => {
   ];
 
   const handleAdd = () => {
-    message.info('点击了添加用户');
+    message.info("点击了添加用户");
     // 这里添加新增用户的逻辑
   };
 

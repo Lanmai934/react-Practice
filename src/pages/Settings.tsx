@@ -1,13 +1,13 @@
-import React from 'react';
-import { Card, Form, Switch, Select, Button, Space, Row, Col } from 'antd';
-import { useTranslation } from 'react-i18next';
+import { Button, Card, Col, Form, Row, Select, Space, Switch } from "antd";
+import type React from "react";
+import { useTranslation } from "react-i18next";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleSubmit = (values: any) => {
-    console.log('Settings values:', values);
+    console.log("Settings values:", values);
   };
 
   return (
@@ -20,44 +20,42 @@ const Settings: React.FC = () => {
             onFinish={handleSubmit}
             initialValues={{
               notifications: true,
-              language: 'zh-CN',
-              theme: 'light'
+              language: "zh-CN",
+              theme: "light",
             }}
           >
             <Form.Item
-              label={t('settings.notification')}
+              label={t("settings.notification")}
               name="notifications"
               valuePropName="checked"
             >
               <Switch />
             </Form.Item>
 
-            <Form.Item
-              label={t('settings.language')}
-              name="language"
-            >
+            <Form.Item label={t("settings.language")} name="language">
               <Select>
                 <Select.Option value="zh-CN">中文</Select.Option>
                 <Select.Option value="en-US">English</Select.Option>
               </Select>
             </Form.Item>
 
-            <Form.Item
-              label={t('settings.theme')}
-              name="theme"
-            >
+            <Form.Item label={t("settings.theme")} name="theme">
               <Select>
-                <Select.Option value="light">{t('settings.theme.light')}</Select.Option>
-                <Select.Option value="dark">{t('settings.theme.dark')}</Select.Option>
+                <Select.Option value="light">
+                  {t("settings.theme.light")}
+                </Select.Option>
+                <Select.Option value="dark">
+                  {t("settings.theme.dark")}
+                </Select.Option>
               </Select>
             </Form.Item>
 
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit">
-                  {t('button.save')}
+                  {t("button.save")}
                 </Button>
-                <Button>{t('button.cancel')}</Button>
+                <Button>{t("button.cancel")}</Button>
               </Space>
             </Form.Item>
           </Form>
